@@ -102,6 +102,20 @@ def update_email(user_auth_id: str, original_email: str, updated_email: str, db:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.put("/user_auth/{user_auth_id}/google_oauth")
+def update_google_oauth(user_auth_id: str, google_oauth: dict, db: Session = Depends(get_db)):
+    try:
+        user_auth = db.query(UserAuth).filter(UserAuth.id == user_auth_id).first()
+        if user_auth is None:
+            raise HTTPException(status_code=404, detail="UserAuth not found")
+        user_auth.google_oauth = google_oauth
+        db.commit()
+        db.refresh(user_auth)
+        return user_auth.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.put("/user_auth/{user_auth_id}/is_verified/{is_verified}")
 def update_is_verified(user_auth_id: str, is_verified: bool, db: Session = Depends(get_db)):
     try:
