@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, Response
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, Field, constr
 import httpx
 import bcrypt
 import redis
@@ -26,7 +26,7 @@ def has_all_criteria(s: str) -> bool:
     )
 
 class RegisterRequest(BaseModel):
-    username: constr(min_length=10, max_length=20)
+    username: str = Field(..., min_length=10, max_length=20)
     email: EmailStr
     password: str
     retype_password: str

@@ -57,6 +57,21 @@ def update_username(user_id: str, original_username: str, updated_username: str,
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     
+@app.put("/user/{user_id}/email/{original_email}/{updated_email}")
+def update_email(user_id: str, original_email: str, updated_email: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        if user.email != original_email:
+            raise HTTPException(status_code=400, detail="Original email does not match")
+        user.email = updated_email
+        db.commit()
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
 @app.delete("/user/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db)):
     try:
