@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy import Column, String, Boolean, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -14,6 +14,7 @@ class NotificationManager(Base):
     show_notifications = Column(Boolean, default=True)
     all_user_notifications = Column(ARRAY(PG_UUID), nullable=True)
     user_token = Column(String(100), nullable=True)
+    notification_preferences = Column(JSON, nullable=True)
 
     def to_dict(self):
         return {
@@ -22,5 +23,6 @@ class NotificationManager(Base):
             "notification_type": self.notification_type,
             "show_notifications": self.show_notifications,
             "all_user_notifications": [str(notification) for notification in self.all_user_notifications],
-            "user_token": self.user_token
+            "user_token": self.user_token,
+            "notification_preferences": self.notification_preferences
         }

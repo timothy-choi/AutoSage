@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Enum, JSON
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import relationship
 from backend.resources.database import Base
@@ -25,6 +25,9 @@ class User(Base):
     notification_manager_id = Column(PG_UUID(as_uuid=True))
     account_plan = Column(Enum(AccountPlans), default='free')
     user_workflow_info_id = Column(PG_UUID(as_uuid=True))
+    security_settings = Column(JSON, nullable=True)
+    platform_settings = Column(JSON, nullable=True)
+    usage_settings = Column(JSON, nullable=True)
 
     def to_dict(self):
         return {
@@ -39,5 +42,7 @@ class User(Base):
             "last_login_ip": self.last_login_ip,
             "notification_manager_id": self.notification_manager_id,
             "account_plan": self.account_plan,
-            "user_workflow_info_id": self.user_workflow_info_id
+            "user_workflow_info_id": self.user_workflow_info_id,
+            "security_settings": self.security_settings,
+            "usage_settings": self.usage_settings
         }

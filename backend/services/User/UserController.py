@@ -163,6 +163,54 @@ def set_user_workflow_info_id(user_id: str, user_workflow_info_id: str, db: Sess
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/security_settings")
+def set_security_settings(user_id: str, security_settings: dict, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.security_settings = security_settings
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/user/{user_id}/platform_settings")
+def set_platform_settings(user_id: str, platform_settings: dict, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.platform_settings = platform_settings
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/usage_settings")
+def set_usage_settings(user_id: str, usage_settings: dict, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.usage_settings = usage_settings
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.delete("/user/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db)):
