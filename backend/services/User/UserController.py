@@ -1,9 +1,14 @@
+from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from resources.database import SessionLocal, engine
 from User import User 
 
 app = FastAPI()
+
+class LoginDate:
+    login_date: datetime
+    login_ip: str
 
 def get_db():
     db = SessionLocal()
@@ -72,6 +77,40 @@ def update_email(user_id: str, original_email: str, updated_email: str, db: Sess
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     
+@app.put("/user/{user_id}/is_active")
+def set_is_actve(user_id: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.is_active = True if not user.is_active else False
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/last_login_info")
+def set_last_login_info(user_id: str, login_date: LoginDate, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.last_login = login_date.login_date
+
+        user.last_login_ip = login_date.login_ip
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.delete("/user/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db)):
     try:
