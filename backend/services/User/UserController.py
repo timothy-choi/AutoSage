@@ -147,6 +147,22 @@ def set_account_plan(user_id: str, account_plan_val: str, db: Session = Depends(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/user_workflow_info_id")
+def set_user_workflow_info_id(user_id: str, user_workflow_info_id: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.user_workflow_info_id = user_workflow_info_id
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.delete("/user/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db)):

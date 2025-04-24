@@ -24,6 +24,7 @@ class User(Base):
     last_login_ip = Column(String(100), nullable=False)
     notification_manager_id = Column(PG_UUID(as_uuid=True))
     account_plan = Column(Enum(AccountPlans), default='free')
+    user_workflow_info_id = Column(PG_UUID(as_uuid=True))
 
     def to_dict(self):
         return {
@@ -37,5 +38,6 @@ class User(Base):
             "last_login": self.last_login,
             "last_login_ip": self.last_login_ip,
             "notification_manager_id": self.notification_manager_id,
-            "account_plan": self.account_plan
+            "account_plan": self.account_plan,
+            "user_workflow_info_id": self.user_workflow_info_id
         }
