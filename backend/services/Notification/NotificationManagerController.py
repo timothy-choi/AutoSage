@@ -81,6 +81,16 @@ def set_notification_token(notification_manager_id: UUID, token: str = Body(...,
     db.refresh(nm)
     return nm
 
+@app.put("/notification-manager/notification_preferences/{notification_manager_id}", response_model=NotificationManager)
+def set_notification_preferences(notification_manager_id: UUID, notification_preferences: dict, db: Session = Depends(get_db)):
+    nm = db.query(NotificationManager).get(notification_manager_id)
+    if not nm:
+        raise HTTPException(status_code=404, detail="Account does not exist")
+    nm.notification_preferences = notification_preferences
+    db.commit()
+    db.refresh(nm)
+    return nm
+
 @app.delete("/notification-manager/{notification_manager_id}", status_code=200)
 def delete_notification_manager(notification_manager_id: UUID, db: Session = Depends(get_db)):
     nm = db.query(NotificationManager).get(notification_manager_id)

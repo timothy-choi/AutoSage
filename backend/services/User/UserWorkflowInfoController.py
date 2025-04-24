@@ -5,9 +5,6 @@ from resources.database import SessionLocal, engine
 from UserWorkflowInfoModel import UserWorkflowInfo
 app = FastAPI()
 
-class WorkflowInfo:
-    user_id: str
-
 def get_db():
     db = SessionLocal()
     try:
@@ -34,7 +31,7 @@ def get_user_workflow_info_by_user_id(user_id: str, db: Session = Depends(get_db
     return user_workflow_info.to_dict(), 200
 
 @app.post("/UserWorklowInfo")
-def create_user_workflow_info(workflow_info: WorkflowInfo, db: Session = Depends(get_db)):
+def create_user_workflow_info(workflow_info: UserWorkflowInfo, db: Session = Depends(get_db)):
     try:
         db.add(workflow_info)
         db.commit()
