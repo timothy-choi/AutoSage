@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from resources.database import SessionLocal, engine
-from User import User 
+from User import User, AccountPlans
 
 app = FastAPI()
 
@@ -103,6 +103,43 @@ def set_last_login_info(user_id: str, login_date: LoginDate, db: Session = Depen
         user.last_login = login_date.login_date
 
         user.last_login_ip = login_date.login_ip
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/notification_manager")
+def set_notification_manager(user_id: str, notification_manager_id: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.notification_manager_id = notification_manager_id
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/account_plan")
+def set_account_plan(user_id: str, account_plan_val: str, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if account_plan_val == 'free':
+            user.account_plan = AccountPlans.FREE
+        elif account_plan_val == 'pro':
+            user.account_plan = AccountPlans.PRO
+        else:
+            user.account_plan = AccountPlans.ENTERPRISE
 
         db.commit()
 
