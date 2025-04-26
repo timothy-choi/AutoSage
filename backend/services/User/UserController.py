@@ -211,6 +211,22 @@ def set_usage_settings(user_id: str, usage_settings: dict, db: Session = Depends
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user/{user_id}/ui_preferences")
+def set_ui_preferences(user_id: str, ui_preferences: dict, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.ui_preferences = ui_preferences
+
+        db.commit()
+
+        return user.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.delete("/user/{user_id}")
 def delete_user(user_id: str, db: Session = Depends(get_db)):

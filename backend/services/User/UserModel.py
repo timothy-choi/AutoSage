@@ -28,6 +28,7 @@ class User(Base):
     security_settings = Column(JSON, nullable=True)
     platform_settings = Column(JSON, nullable=True)
     usage_settings = Column(JSON, nullable=True)
+    ui_preferences = Column(JSON, nullable=True)
 
     def to_dict(self):
         return {
@@ -44,5 +45,7 @@ class User(Base):
             "account_plan": self.account_plan,
             "user_workflow_info_id": self.user_workflow_info_id,
             "security_settings": self.security_settings,
-            "usage_settings": self.usage_settings
+            "usage_settings": self.usage_settings,
+            "platform_settings": self.platform_settings,
+            "ui_preferences": self.ui_preferences
         }
