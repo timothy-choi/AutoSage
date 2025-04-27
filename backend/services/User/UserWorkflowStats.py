@@ -22,6 +22,13 @@ class UserWorkflowStats(Base):
 
     most_used_workflow = Column(String(100), nullable=True)
 
+    most_consistent_workflow = Column(String(100), nullable=True)
+    least_consistent_workflow = Column(String(100), nullable=True)
+
+    least_used_workflow = Column(String(100), nullable=True)
+
+    workflow_activity_history = Column(ARRAY(JSON), nullable=True)
+
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
@@ -35,5 +42,9 @@ class UserWorkflowStats(Base):
             "api_calls_made": self.api_calls_made,
             "active_workflows": self.active_workflows,
             "most_used_workflow": self.most_used_workflow,
+            "most_consistent_workflow": self.most_consistent_workflow,
+            "least_consistent_workflow": self.least_consistent_workflow,
+            "least_used_workflow": self.least_used_workflow,
+            "workflow_activity_history": self.workflow_activity_history,
             "updated_at": self.updated_at
         }
