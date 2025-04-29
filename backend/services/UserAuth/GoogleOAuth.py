@@ -51,6 +51,31 @@ async def OAuth2Callback(request: Request):
         user_email = id_info['email']
         user_name = id_info.get('name')
 
+        user_info = requests.get("/Users/email/" + user_email)
+
+        if user_info.status_code != 200:
+            user_auth_info = requests.post("/UserAuth", json={
+                "user_id": user_id,
+                "email": user_email,
+                "name": user_name,
+                "google_oauth": {
+                    "id_token": flow.credentials.id_token,
+                    "access_token": flow.credentials.token,
+                    "refresh_token": flow.credentials.refresh_token
+                }
+            })
+
+            user_info = requests.post("/Users", json={
+                "user_id": user_id,
+                "email": user_email,
+                "name": user_name,
+                "user_auth_id": user_auth_info.json().get('id')
+            })
+
+            user_auth_id = user_auth_info.json().get('id')
+
+            requests.put("/UserAuth/user_id/${user_auth_id}/${user_id}")
+
         session_data = {
             'user_id': user_id,
             'email': user_email,
@@ -67,7 +92,7 @@ async def OAuth2Callback(request: Request):
 
         redis_client.setex(session_id, timedelta(days=1), str(jsonable_encoder(request.session)))
 
-        return JSONResponse(content={"message": "Login successful", "user": session_data, "tokens": request.session['tokens']}, status_code=201)
+        return JSONResponse(content={"message": "Auth successful", "user": session_data, "tokens": request.session['tokens'], "user_id": user_info.id}, status_code=201)
     except Exception as e:
         return RedirectResponse(url='/AuthError')
 

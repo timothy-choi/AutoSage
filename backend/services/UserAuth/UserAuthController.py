@@ -50,6 +50,20 @@ def create_user_auth(user_auth: UserAuth, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    
+@app.put("/user_auth/user_id/{user_auth_id}/{user_id}}")
+def update_user_id(user_auth_id: str, user_id: str, db: Session = Depends(get_db)):
+    try:
+        user_auth = db.query(UserAuth).filter(UserAuth.id == user_auth_id).first()
+        if user_auth is None:
+            raise HTTPException(status_code=404, detail="UserAuth not found")
+        user_auth.user_id = user_id
+        db.commit()
+        db.refresh(user_auth)
+        return user_auth.to_dict(), 200
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.put("/user_auth/{user_auth_id}/username/{original_username}/{updated_username}")  
 def update_username(user_auth_id: str, original_username: str, updated_username: str, db: Session = Depends(get_db)):

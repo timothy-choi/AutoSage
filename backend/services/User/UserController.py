@@ -36,6 +36,13 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user.to_dict(), 200
 
+@app.get("/user/email/{email}")
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.to_dict(), 200
+
 @app.post("/user/")
 def create_user(user: User, db: Session = Depends(get_db)):
     try:

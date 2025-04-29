@@ -21,7 +21,7 @@ class User(Base):
     userAuth_id = Column(PG_UUID(as_uuid=True), ForeignKey('user_auth.id'), nullable=False)
     is_active = Column(Boolean, nullable=True)
     last_login = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    last_login_ip = Column(String(100), nullable=False)
+    last_login_ip = Column(String(100), nullable=True)
     notification_manager_id = Column(PG_UUID(as_uuid=True))
     account_plan = Column(Enum(AccountPlans), default='free')
     user_workflow_info_id = Column(PG_UUID(as_uuid=True))
