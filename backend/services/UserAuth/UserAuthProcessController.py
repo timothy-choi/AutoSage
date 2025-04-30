@@ -7,6 +7,7 @@ import os
 import json
 import uuid
 from datetime import timedelta
+import VerificationFlow
 
 app = FastAPI()
 
@@ -42,6 +43,9 @@ class ChangeUsernameRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     changed_password: str
     retyped_password: str
+
+class EmailRequest(BaseModel):
+    email: str
 
 async def get_session(request: Request):
     try:
@@ -163,3 +167,24 @@ async def change_password(user_auth_id: uuid.UUID, req: ChangePasswordRequest):
         return {"status": "successful"}
     except httpx.HTTPError as e:
         raise HTTPException(status_code=500, detail=f"External API error: {str(e)}")
+    
+@app.post('/UserAuthProcess/Email')
+def send_verification_email(email_info: EmailRequest):
+    try:
+        if not email_info.get("email"):
+            raise HTTPException(status_code=400, detail="Email is required")
+        
+        VerificationFlow.send_verification_email(email_info["email"])
+        
+        return {"status": "verification email sent"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
+    
+@app.post('/UserAuthProcess/verify_email/<string:token>')
+def verify_email(token: str):
+    try:
+        VerificationFlow.verify_email_token(token)
+        
+        return {"status": "email verified"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
