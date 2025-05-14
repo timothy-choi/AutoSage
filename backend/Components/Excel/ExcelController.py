@@ -64,8 +64,7 @@ async def create_excel_from_text(request: RequestExcelCreate):
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.post("/Excel/readExcel")
-async def read_excel(request: Request):
-    file_path = request.query_params.get("file_path")
+async def read_excel(file_path: str):
     if not file_path:
         raise HTTPException(status_code=400, detail="File path is required")
     
@@ -88,5 +87,89 @@ async def append_row(request: RequestExcelAppend):
     try:
         ExcelHelper.append_row(file_path, row_data)
         return JSONResponse(content={"message": "Row appended successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/Excel/cellValue")
+async def cell_value(file_path: str, cell: str):
+    if not file_path:
+        raise HTTPException(status_code=400, detail="File path is required")
+    
+    if not cell:
+        raise HTTPException(status_code=400, detail="Cell is required")
+    
+    try:
+        value = ExcelHelper.get_cell_value(file_path, cell)
+        return JSONResponse(content={"value": value})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/Excel/setCellValue")
+async def set_cell_value(file_path: str, cell: str, value: str):
+    if not file_path:
+        raise HTTPException(status_code=400, detail="File path is required")
+    
+    if not cell:
+        raise HTTPException(status_code=400, detail="Cell is required")
+    
+    if not value:
+        raise HTTPException(status_code=400, detail="Value is required")
+    
+    try:
+        ExcelHelper.set_cell_value(file_path, cell, value)
+        return JSONResponse(content={"message": "Cell value set successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/Excel/deleteRow")
+async def delete_row(file_path: str, row: int):
+    if not file_path:
+        raise HTTPException(status_code=400, detail="File path is required")
+    
+    if row is None:
+        raise HTTPException(status_code=400, detail="Row is required")
+    
+    try:
+        ExcelHelper.delete_row(file_path, row)
+        return JSONResponse(content={"message": "Row deleted successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/Excel/copy")
+async def copy_excel(source_path: str, destination_path: str):
+    if not source_path:
+        raise HTTPException(status_code=400, detail="Source path is required")
+    
+    if not destination_path:
+        raise HTTPException(status_code=400, detail="Destination path is required")
+    
+    try:
+        ExcelHelper.copy_excel(source_path, destination_path)
+        return JSONResponse(content={"message": "File copied successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/Excel/rename")
+async def rename_excel(original_path: str, new_path: str):
+    if not original_path:
+        raise HTTPException(status_code=400, detail="Original path is required")
+    
+    if not new_path:
+        raise HTTPException(status_code=400, detail="New path is required")
+    
+    try:
+        ExcelHelper.rename_excel(original_path, new_path)
+        return JSONResponse(content={"message": "File renamed successfully"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete("/Excel/delete")
+async def delete_excel(file_path: str):
+    if not file_path:
+        raise HTTPException(status_code=400, detail="File path is required")
+    
+    try:
+        ExcelHelper.delete_excel(file_path)
+        return JSONResponse(content={"message": "File deleted successfully"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
