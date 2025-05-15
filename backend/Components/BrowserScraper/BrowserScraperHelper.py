@@ -27,6 +27,12 @@ def create_driver(browser: str = "chrome", headless: bool = True):
         if headless:
             options.add_argument("--headless")
         return webdriver.Edge(options=options)
+    elif browser == "safari":
+        from selenium.webdriver.safari.options import Options as SafariOptions
+        options = SafariOptions()
+        if headless:
+            options.add_argument("--headless")
+        return webdriver.Safari(options=options)
     else:
         raise ValueError(f"Unsupported browser: {browser}")
 
