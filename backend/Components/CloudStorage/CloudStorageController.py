@@ -11,6 +11,11 @@ def validate_required_fields(data: dict, required_fields: list):
         raise HTTPException(status_code=400, detail=f"Missing required fields: {', '.join(missing_fields)}")
     return True
 
+class OneDriveInfo(BaseModel):
+    client_id: str
+    tenant_id: str
+    scopes: list
+
 class CloudStorageRequest(BaseModel):
     bucket_name: str
     file_path: str
@@ -19,6 +24,7 @@ class CloudStorageRequest(BaseModel):
     metadata: dict = {}
     credentials_path: str = None
     token: str = None
+    remote_name: str = None
     
     def __init__(self, **data):
         super().__init__(**data)
@@ -194,6 +200,82 @@ async def delete_file_dropbox(request: CloudStorageRequest):
         CloudStorageHelper.configure_dropbox(token)
 
         data = CloudStorageHelper.delete_dropbox_file(file_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/oneDrive/upload")
+async def upload_file_onedrive(request: CloudStorageRequest, oneDriveInfo: OneDriveInfo):
+    form = await request.form()
+    file_path = form.get("file_path")
+    remote_name = form.get("remote_name")
+
+    validate_required_fields(form, ["bucket_name", "file_path", "destination_path"])
+
+    try:
+        CloudStorageHelper.configure_onedrive(oneDriveInfo.client_id, oneDriveInfo.tenant_id, oneDriveInfo.scopes)
+
+        data = CloudStorageHelper.upload_to_onedrive(file_path, remote_name)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/oneDrive/download")
+async def download_file_onedrive(request: CloudStorageRequest, oneDriveInfo: OneDriveInfo):
+    form = await request.form()
+    file_path = form.get("file_path")
+    destination_path = form.get("destination_path")
+
+    validate_required_fields(form, ["bucket_name", "file_path", "destination_path"])
+
+    try:
+        CloudStorageHelper.configure_onedrive(oneDriveInfo.client_id, oneDriveInfo.tenant_id, oneDriveInfo.scopes)
+
+        data = CloudStorageHelper.download_onedrive_file(file_path, destination_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/oneDrive/check_file_exists")
+async def check_file_exists_onedrive(request: CloudStorageRequest, filename: str, oneDriveInfo: OneDriveInfo):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+
+    validate_required_fields(form, ["bucket_name", "file_path"])
+
+    try:
+        CloudStorageHelper.configure_onedrive(oneDriveInfo.client_id, oneDriveInfo.tenant_id, oneDriveInfo.scopes)
+
+        data = CloudStorageHelper.check_if_onedrive_file_exists(filename)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/oneDrive/list")
+async def list_files_onedrive(request: CloudStorageRequest, oneDriveInfo: OneDriveInfo):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+
+    validate_required_fields(form, ["bucket_name"])
+
+    try:
+        CloudStorageHelper.configure_onedrive(oneDriveInfo.client_id, oneDriveInfo.tenant_id, oneDriveInfo.scopes)
+
+        data = CloudStorageHelper.list_onedrive_files()
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/oneDrive/delete")
+async def delete_file_onedrive(request: CloudStorageRequest, item_id: str, oneDriveInfo: OneDriveInfo):
+    form = await request.form()
+
+    validate_required_fields(form, ["bucket_name", "file_path"])
+
+    try:
+        CloudStorageHelper.configure_onedrive(oneDriveInfo.client_id, oneDriveInfo.tenant_id, oneDriveInfo.scopes)
+
+        data = CloudStorageHelper.delete_onedrive_file(item_id)
         return CloudStorageResponse(status="success", data=data)
     except Exception as e:
         return CloudStorageResponse(status="error", error=str(e))
