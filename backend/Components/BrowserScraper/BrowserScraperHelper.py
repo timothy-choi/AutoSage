@@ -63,6 +63,16 @@ def scroll_to_bottom(driver: webdriver, pause_time: float = 1.0):
             break
         last_height = new_height
 
+def scroll_to_top(driver: webdriver, pause_time: float = 1.0):
+    current_height = driver.execute_script("return window.scrollY")
+    while current_height > 0:
+        driver.execute_script("window.scrollBy(0, -window.innerHeight);")
+        time.sleep(pause_time)
+        new_height = driver.execute_script("return window.scrollY")
+        if new_height == current_height:
+            break
+        current_height = new_height
+
 def click_element_by_selector(driver: webdriver, selector: str):
     el = driver.find_element(By.CSS_SELECTOR, selector)
     el.click()
