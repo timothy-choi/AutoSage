@@ -18,6 +18,7 @@ class CloudStorageRequest(BaseModel):
     operation: str = "upload"
     metadata: dict = {}
     credentials_path: str = None
+    token: str = None
     
     def __init__(self, **data):
         super().__init__(**data)
@@ -107,6 +108,92 @@ async def delete_file(request: CloudStorageRequest, file_id: str):
         CloudStorageHelper.configure_google_drive(credentials_path)
 
         data = CloudStorageHelper.delete_gdrive_file(file_id)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/dropbox/upload")
+async def upload_file_dropbox(request: CloudStorageRequest):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+    file_path = form.get("file_path")
+    destination_path = form.get("destination_path")
+    token = form.get("token")
+
+    validate_required_fields(form, ["bucket_name", "file_path", "destination_path"])
+
+    try:
+        CloudStorageHelper.configure_dropbox(token)
+
+        data = CloudStorageHelper.upload_to_dropbox(file_path, destination_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/dropbox/download")
+async def download_file_dropbox(request: CloudStorageRequest):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+    file_path = form.get("file_path")
+    destination_path = form.get("destination_path")
+    token = form.get("token")
+
+    validate_required_fields(form, ["bucket_name", "file_path", "destination_path"])
+
+    try:
+        CloudStorageHelper.configure_dropbox(token)
+
+        data = CloudStorageHelper.download_dropbox_file(file_path, destination_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/dropbox/check_file_exists")
+async def check_file_exists_dropbox(request: CloudStorageRequest, file_path: str):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+    token = form.get("token")
+
+    validate_required_fields(form, ["bucket_name", "file_path"])
+
+    try:
+        CloudStorageHelper.configure_dropbox(token)
+
+        data = CloudStorageHelper.check_dropbox_file_exists(file_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/dropbox/list")
+async def list_files_dropbox(request: CloudStorageRequest):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+    token = form.get("token")
+    folder_path = form.get("folder_path")
+
+    validate_required_fields(form, ["bucket_name"])
+
+    try:
+        CloudStorageHelper.configure_dropbox(token)
+
+        data = CloudStorageHelper.list_dropbox_files(folder_path)
+        return CloudStorageResponse(status="success", data=data)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/dropbox/delete")
+async def delete_file_dropbox(request: CloudStorageRequest):
+    form = await request.form()
+    bucket_name = form.get("bucket_name")
+    token = form.get("token")
+    file_path = form.get("file_path")
+
+    validate_required_fields(form, ["bucket_name", "file_path"])
+
+    try:
+        CloudStorageHelper.configure_dropbox(token)
+
+        data = CloudStorageHelper.delete_dropbox_file(file_path)
         return CloudStorageResponse(status="success", data=data)
     except Exception as e:
         return CloudStorageResponse(status="error", error=str(e))
