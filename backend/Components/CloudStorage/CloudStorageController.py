@@ -279,3 +279,12 @@ async def delete_file_onedrive(request: CloudStorageRequest, item_id: str, oneDr
         return CloudStorageResponse(status="success", data=data)
     except Exception as e:
         return CloudStorageResponse(status="error", error=str(e))
+    
+@app.post("/CloudStorage/backups")
+async def push_backup_to_cloud(backup_path: str, provider: str, folder_id: str, remote_name: str):
+    try:
+        res = CloudStorageHelper.push_backup_to_cloud(backup_path, provider, folder_id, remote_name)
+
+        return CloudStorageResponse(status="success", data=res)
+    except Exception as e:
+        return CloudStorageResponse(status="error", error=str(e))

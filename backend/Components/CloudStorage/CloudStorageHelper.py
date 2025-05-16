@@ -7,6 +7,7 @@ import dropbox
 import requests
 import json
 from msal import PublicClientApplication
+import shutil
 
 _gdrive_service = None
 _dropbox_client = None
@@ -174,3 +175,21 @@ def delete_onedrive_file(item_id: str):
     response = requests.delete(url, headers=headers)
     if response.status_code not in (204, 202):
         raise RuntimeError(f"OneDrive delete failed: {response.status_code} {response.text}")
+    
+def push_backup_to_cloud(backup_path: str, provider: str, folder_id: str, remote_name: str) -> str:
+    filename = os.path.basename(backup_path)
+    if os.path.isdir(backup_path):
+        archive_name = shutil.make_archive(backup_path, 'zip', backup_path)
+        backup_path = archive_name
+        filename = os.path.basename(archive_name)
+
+    cloud_path = f"/backups/{filename}"
+
+    if provider == "dropbox":
+        return upload_to_dropbox(backup_path, cloud_path)
+    elif provider == "onedrive":
+        return upload_to_onedrive(backup_path, remote_name)
+    elif provider == "gdrive":
+        return upload_to_gdrive(backup_path, folder_id)
+    else:
+        raise ValueError(f"Unsupported cloud provider: {provider}")
