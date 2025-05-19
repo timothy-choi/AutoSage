@@ -57,3 +57,34 @@ def get_image_with_boxes(image_path: str, lang: str = 'eng', save_path: Optional
     except Exception as e:
         print(f"OCR box draw error: {e}")
         return None
+
+def get_words_with_confidence(image_path: str, lang: str = 'eng') -> List[Dict]:
+    try:
+        from pytesseract import Output
+        img = Image.open(image_path)
+        data = pytesseract.image_to_data(img, lang=lang, output_type=Output.DICT)
+        return [
+            {"text": text, "conf": conf}
+            for text, conf in zip(data["text"], data["conf"])
+            if text.strip()
+        ]
+    except Exception as e:
+        print(f"OCR confidence error: {e}")
+        return []
+    
+def extract_digits(image_path: str, lang: str = 'eng') -> str:
+    try:
+        img = Image.open(image_path)
+        custom_config = r'--oem 3 --psm 11 outputbase digits'
+        return pytesseract.image_to_string(img, lang=lang, config=custom_config).strip()
+    except Exception as e:
+        print(f"OCR digit extraction error: {e}")
+        return ""
+
+def detect_orientation(image_path: str) -> Optional[str]:
+    try:
+        result = pytesseract.image_to_osd(Image.open(image_path))
+        return result.strip()
+    except Exception as e:
+        print(f"OCR orientation error: {e}")
+        return None
