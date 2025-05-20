@@ -5,9 +5,9 @@ from ClipboardHelper import *
 app = FastAPI()
 
 @app.post("/clipboard/copy")
-def api_copy_to_clipboard(text: str = Form(...)):
+def api_copy_to_clipboard(text: str = Form(...), user: str = Form(...)):
     try:
-        copy_to_clipboard(text)
+        copy_to_clipboard(text, user)
         return {"status": "copied"}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -37,9 +37,9 @@ def api_is_clipboard_empty():
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.get("/clipboard/history")
-def api_get_clipboard_history(limit: int = Query(10)):
+def api_get_clipboard_history(user: str = Query(...), limit: int = Query(10)):
     try:
-        return {"history": get_clipboard_history(limit)}
+        return {"history": get_clipboard_history(user, limit)}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 

@@ -1,34 +1,48 @@
 import pyperclip
-from typing import Optional
 import time
+import os
+import json
+from typing import Optional
 
-_clipboard_history = []
+CLIPBOARD_DIR = "clipboard_history"
+os.makedirs(CLIPBOARD_DIR, exist_ok=True)
 
+def _get_user_history_path(user: str) -> str:
+    return os.path.join(CLIPBOARD_DIR, f"clipboard_{user}.json")
 
-def copy_to_clipboard(text: str) -> None:
+def _load_history(user: str):
+    path = _get_user_history_path(user)
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            return json.load(f)
+    return []
+
+def _save_history(user: str, history):
+    path = _get_user_history_path(user)
+    with open(path, "w") as f:
+        json.dump(history, f)
+
+def copy_to_clipboard(text: str, user: str) -> None:
     pyperclip.copy(text)
-    _clipboard_history.append((time.time(), text))
-
+    history = _load_history(user)
+    history.append({"timestamp": time.time(), "text": text})
+    _save_history(user, history)
 
 def paste_from_clipboard() -> str:
     return pyperclip.paste()
 
-
 def clear_clipboard() -> None:
     pyperclip.copy("")
-
 
 def is_clipboard_empty() -> bool:
     return paste_from_clipboard().strip() == ""
 
-
-def get_clipboard_history(limit: int = 10) -> list:
-    return _clipboard_history[-limit:]
-
+def get_clipboard_history(user: str, limit: int = 10) -> list:
+    history = _load_history(user)
+    return history[-limit:]
 
 def has_clipboard_changed(last_value: str) -> bool:
     return paste_from_clipboard() != last_value
-
 
 def wait_for_clipboard_change(last_value: str, timeout: float = 10.0) -> Optional[str]:
     start = time.time()
