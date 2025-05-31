@@ -38,6 +38,23 @@ def save_video(file: UploadFile, filename: str = None) -> str:
     except Exception as e:
         raise Exception(f"Failed to save video: {str(e)}")
 
+def upload_video_to_service(file_path: str, upload_url: str, api_key: str = None) -> dict:
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    headers = {}
+    if api_key:
+        headers['Authorization'] = f"Bearer {api_key}"
+
+    with open(file_path, 'rb') as f:
+        files = {'file': (os.path.basename(file_path), f, 'video/mp4')}
+        response = requests.post(upload_url, files=files, headers=headers)
+
+    if response.status_code not in (200, 201):
+        raise Exception(f"Upload failed: {response.status_code} {response.text}")
+
+    return response.json()
+
 def list_videos(directory: str = UPLOAD_DIR) -> list:
     try:
         return [os.path.basename(f) for f in glob.glob(f"{directory}/*") if os.path.isfile(f)]

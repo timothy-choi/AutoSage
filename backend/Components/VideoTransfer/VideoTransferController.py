@@ -1,6 +1,7 @@
-from fastapi import APIRouter, UploadFile, HTTPException, Query
-from VideoTransferHelper import save_video, download_video, list_videos, delete_video, archive_videos, get_video_metadata, rename_video, move_video
+from fastapi import APIRouter, UploadFile, HTTPException, Query, Form
+from VideoTransferHelper import save_video, download_video, list_videos, delete_video, archive_videos, get_video_metadata, rename_video, move_video, upload_video_to_service
 import os
+import shutil
 from typing import List
 
 router = APIRouter()
@@ -76,5 +77,24 @@ def move_video_file(filename: str = Query(...), destination: str = Query("archiv
         source_path = os.path.join("uploaded_videos", filename)
         moved_path = move_video(source_path, destination)
         return {"message": f"Moved to {moved_path}", "path": moved_path}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/video/upload-online")
+def upload_video_online(
+    file: UploadFile,
+    upload_url: str = Form(...),
+    api_key: str = Form(None)
+):
+    try:
+        temp_path = os.path.join("temp_uploads", file.filename)
+        os.makedirs("temp_uploads", exist_ok=True)
+
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        result = upload_video_to_service(temp_path, upload_url, api_key)
+        os.remove(temp_path)
+        return {"message": "Upload successful", "response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
