@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Query
-from watermark_adder import add_watermark
+from WatermarkAdderHelper import add_watermark
 import os
 import uuid
 import shutil
@@ -19,7 +19,6 @@ def add_video_watermark(
         temp_dir = "temp_watermarked"
         os.makedirs(temp_dir, exist_ok=True)
 
-        # Save uploaded file
         temp_path = os.path.join(temp_dir, f"{uuid.uuid4()}_{file.filename}")
         with open(temp_path, "wb") as f:
             shutil.copyfileobj(file.file, f)
