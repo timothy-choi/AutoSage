@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, Form, HTTPException
-from SlackFileUploader import upload_slack_file
+from SlackFileUploaderHelper import upload_slack_file
 import os
 import uuid
 import shutil
