@@ -20,7 +20,7 @@ def detect(text: str):
     return detect_language(text)
 
 @router.post("/translate/batch")
-def batch_translate_endpoint(texts: List[str], to: str = "en", from_lang: str = "auto"):
+def batch_translate_endpoint(texts: list[str], to: str = "en", from_lang: str = "auto"):
     return batch_translate(texts, dest_lang=to, src_lang=from_lang)
 
 @router.get("/translate/supported")
