@@ -15,7 +15,7 @@ def reply_to_slack_thread(token: str, channel: str, thread_ts: str, message: str
     response = requests.post("https://slack.com/api/chat.postMessage", json=payload, headers=headers)
     return response.json()
 
-def upload_slack_file(token: str, channels: str, file_path: str, title: str = "") -> Dict:
+def upload_slack_file(token: str, channels: str, file_path: str, title: str = "") -> dict:
     """Uploads a file to Slack in a specific channel/thread."""
     with open(file_path, "rb") as file_content:
         files = {'file': file_content}
