@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+import os
 from TeamsTranscriptGeneratorHelper import download_audio_file, generate_transcript
 
 router = APIRouter()
