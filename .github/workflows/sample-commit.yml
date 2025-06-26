@@ -16,9 +16,8 @@ jobs:
     - name: Create ZoomReactionTrackerHelper.py
       run: |
         mkdir -p backend/Components/Zoom
-        cat <<EOF > backend/Components/Zoom/ZoomReactionTrackerHelper.py
+        cat <<'EOF' > backend/Components/Zoom/ZoomReactionTrackerHelper.py
 import requests
-from datetime import datetime
 
 ALLOWED_REACTIONS = ["clap", "heart", "thumbs_up"]
 REACTION_EMOJIS = {
@@ -48,12 +47,6 @@ def is_reaction_allowed(reaction_type: str):
 def is_email_domain_allowed(email: str, allowed_domains: list):
     return any(email.endswith("@" + domain.strip()) for domain in allowed_domains)
 
-def format_human_time(iso_timestamp: str):
-    try:
-        return datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00")).strftime("%Y-%m-%d %H:%M:%S UTC")
-    except Exception:
-        return iso_timestamp
-
 def forward_reaction_to_webhook(reaction_data, webhook_url):
     try:
         response = requests.post(webhook_url, json=reaction_data)
@@ -70,5 +63,5 @@ EOF
     - name: Commit and push
       run: |
         git add backend/Components/Zoom/ZoomReactionTrackerHelper.py
-        git commit -m "Added ZoomReactionTrackerHelper automatically" || echo "No changes"
+        git commit -m "Added ZoomReactionTrackerHelper automatically" || echo "No changes to commit"
         git push
