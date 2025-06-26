@@ -2,7 +2,7 @@ name: Auto Create Zoom Controller File
 
 on:
   schedule:
-    - cron: '43 23 26 6 *'  # 3:07 PM PST on June 26
+    - cron: '44 23 26 6 *'  # 3:07 PM PST on June 26
   workflow_dispatch:
 
 jobs:
@@ -16,66 +16,66 @@ jobs:
         persist-credentials: true
         fetch-depth: 0
 
-    - name: Create ZoomReactionTrackerController.py safely
+    - name: Create ZoomReactionTrackerController.py
       run: |
-        mkdir -p backend/Controllers/Zoom
-        > backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "from fastapi import APIRouter, Request, Header, Query\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "from typing import Optional\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "from zoom_reaction_tracker_helper import (\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    parse_reaction_event,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    is_reaction_allowed,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    is_email_domain_allowed,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    format_human_time,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    forward_reaction_to_webhook,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    REACTION_EMOJIS\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf ")\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "router = APIRouter()\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "@router.post(\"/zoom/webhook/reaction\")\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "async def zoom_reaction_webhook(\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    request: Request,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    x_zm_request_timestamp: str = Header(...),\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    x_zm_signature: str = Header(...),\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    webhook_url: Optional[str] = Query(None, description=\"Optional endpoint to forward the reaction\"),\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    allowed_domains: Optional[str] = Query(None, description=\"Comma-separated allowed domains (e.g., yourco.com)\")\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "):\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    \"\"\"\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    Handles Zoom reaction events and optionally forwards them to a webhook.\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    Fully stateless.\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    \"\"\"\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    try:\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        payload = await request.json()\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        event = payload.get(\"event\")\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        if event != \"meeting.reaction_sent\":\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            return {\"status\": \"ignored\", \"reason\": f\"event {event} not supported\"}\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        data = parse_reaction_event(payload)\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        if not is_reaction_allowed(data[\"reaction_type\"]):\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            return {\"status\": \"ignored\", \"reason\": \"reaction type not allowed\"}\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        if allowed_domains:\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            allowed_list = [d.strip() for d in allowed_domains.split(\",\")]\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            if not is_email_domain_allowed(data[\"email\"], allowed_list):\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "                return {\"status\": \"ignored\", \"reason\": \"email domain not allowed\"}\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        emoji = REACTION_EMOJIS.get(data[\"reaction_type\"], \"❓\")\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        human_time = format_human_time(data[\"timestamp\"])\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        enhanced_data = {\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"reaction\": data[\"reaction_type\"],\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"emoji\": emoji,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"participant\": data[\"participant_name\"],\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"email\": data[\"email\"],\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"meeting_id\": data[\"meeting_id\"],\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"timestamp\": data[\"timestamp\"],\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"time_human\": human_time,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            \"message\": f\"{data['participant_name']} reacted with {emoji} at {human_time}\"\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        }\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        if webhook_url:\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            forward_result = forward_reaction_to_webhook(enhanced_data, webhook_url)\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            return {\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "                \"status\": \"forwarded\",\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "                \"reaction\": enhanced_data,\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "                \"forward_result\": forward_result\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "            }\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        return {\"status\": \"received\", \"reaction\": enhanced_data}\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "    except Exception as e:\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        mkdir -p backend/Components/Zoom
+        > backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "from fastapi import APIRouter, Request, Header, Query\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "from typing import Optional\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "from zoom_reaction_tracker_helper import (\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    parse_reaction_event,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    is_reaction_allowed,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    is_email_domain_allowed,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    format_human_time,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    forward_reaction_to_webhook,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    REACTION_EMOJIS\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf ")\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "router = APIRouter()\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "@router.post(\"/zoom/webhook/reaction\")\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "async def zoom_reaction_webhook(\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    request: Request,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    x_zm_request_timestamp: str = Header(...),\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    x_zm_signature: str = Header(...),\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    webhook_url: Optional[str] = Query(None, description=\"Optional endpoint to forward the reaction\"),\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    allowed_domains: Optional[str] = Query(None, description=\"Comma-separated allowed domains (e.g., yourco.com)\")\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "):\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    \"\"\"\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    Handles Zoom reaction events and optionally forwards them to a webhook.\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    Fully stateless.\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    \"\"\"\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    try:\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        payload = await request.json()\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        event = payload.get(\"event\")\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        if event != \"meeting.reaction_sent\":\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            return {\"status\": \"ignored\", \"reason\": f\"event {event} not supported\"}\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        data = parse_reaction_event(payload)\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        if not is_reaction_allowed(data[\"reaction_type\"]):\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            return {\"status\": \"ignored\", \"reason\": \"reaction type not allowed\"}\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        if allowed_domains:\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            allowed_list = [d.strip() for d in allowed_domains.split(\",\")]\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            if not is_email_domain_allowed(data[\"email\"], allowed_list):\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "                return {\"status\": \"ignored\", \"reason\": \"email domain not allowed\"}\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        emoji = REACTION_EMOJIS.get(data[\"reaction_type\"], \"❓\")\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        human_time = format_human_time(data[\"timestamp\"])\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        enhanced_data = {\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"reaction\": data[\"reaction_type\"],\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"emoji\": emoji,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"participant\": data[\"participant_name\"],\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"email\": data[\"email\"],\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"meeting_id\": data[\"meeting_id\"],\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"timestamp\": data[\"timestamp\"],\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"time_human\": human_time,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            \"message\": f\"{data['participant_name']} reacted with {emoji} at {human_time}\"\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        }\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        if webhook_url:\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            forward_result = forward_reaction_to_webhook(enhanced_data, webhook_url)\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            return {\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "                \"status\": \"forwarded\",\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "                \"reaction\": enhanced_data,\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "                \"forward_result\": forward_result\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "            }\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "        return {\"status\": \"received\", \"reaction\": enhanced_data}\n\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
+        printf "    except Exception as e:\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
         printf "        return {\"error\": str(e)}\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
 
     - name: Configure Git
@@ -85,6 +85,6 @@ jobs:
 
     - name: Commit and push
       run: |
-        git add backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        git add backend/Components/Zoom/ZoomReactionTrackerController.py
         git commit -m "Added ZoomReactionTrackerController automatically" || echo "No changes to commit"
         git push origin HEAD
