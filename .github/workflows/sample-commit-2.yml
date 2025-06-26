@@ -2,7 +2,7 @@ name: Auto Create Zoom Controller File
 
 on:
   schedule:
-    - cron: '24 23 26 6 *'  # 3:07 PM PST on June 26
+    - cron: '28 23 26 6 *'  # 3:07 PM PST on June 26
   workflow_dispatch:
 
 jobs:
