@@ -2,7 +2,7 @@ name: Auto Create Zoom Controller File
 
 on:
   schedule:
-    - cron: '7 23 26 6 *'  # 3:07 PM PST on June 26
+    - cron: '43 23 26 6 *'  # 3:07 PM PST on June 26
   workflow_dispatch:
 
 jobs:
@@ -76,7 +76,7 @@ jobs:
         printf "            }\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
         printf "        return {\"status\": \"received\", \"reaction\": enhanced_data}\n\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
         printf "    except Exception as e:\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
-        printf "        return {\"error\": str(e)}\n" >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        printf "        return {\"error\": str(e)}\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
 
     - name: Configure Git
       run: |
