@@ -2,7 +2,7 @@ name: Auto Create Zoom Controller File
 
 on:
   schedule:
-    - cron: '12 23 26 6 *' # 3:07 PM PST on June 26
+    - cron: '25 23 26 6 *' # 3:07 PM PST on June 26
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,6 @@ jobs:
 
     - name: Create ZoomReactionTrackerController.py
       run: |
-        mkdir -p backend/Components/Zoom
         > backend/Components/Zoom/ZoomReactionTrackerController.py
         printf "from fastapi import APIRouter, Request, Header, Query\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
         printf "from typing import Optional\n" >> backend/Components/Zoom/ZoomReactionTrackerController.py
