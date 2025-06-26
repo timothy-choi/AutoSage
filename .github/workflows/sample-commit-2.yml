@@ -1,0 +1,101 @@
+name: Auto Create Zoom Controller File
+
+on:
+  schedule:
+    - cron: '23 23 26 6 *'  # 3:07 PM PST on June 26
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: true
+        fetch-depth: 0
+
+    - name: Create ZoomReactionTrackerController.py
+      run: |
+        mkdir -p backend/Controllers/Zoom
+        > backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo 'from fastapi import APIRouter, Request, Header, Query' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo 'from typing import Optional' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo 'from zoom_reaction_tracker_helper import (' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    parse_reaction_event,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    is_reaction_allowed,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    is_email_domain_allowed,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    format_human_time,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    forward_reaction_to_webhook,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    REACTION_EMOJIS' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo ')' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo 'router = APIRouter()' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '@router.post("/zoom/webhook/reaction")' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo 'async def zoom_reaction_webhook(' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    request: Request,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    x_zm_request_timestamp: str = Header(...),' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    x_zm_signature: str = Header(...),' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    webhook_url: Optional[str] = Query(None, description="Optional endpoint to forward the reaction"),' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    allowed_domains: Optional[str] = Query(None, description="Comma-separated allowed domains (e.g., yourco.com)")' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '):' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    """' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    Handles Zoom reaction events and optionally forwards them to a webhook.' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    Fully stateless.' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    """' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    try:' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        payload = await request.json()' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        event = payload.get("event")' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        if event != "meeting.reaction_sent":' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            return {"status": "ignored", "reason": f"event {event} not supported"}' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        data = parse_reaction_event(payload)' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        if not is_reaction_allowed(data["reaction_type"]):' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            return {"status": "ignored", "reason": "reaction type not allowed"}' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        if allowed_domains:' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            allowed_list = [d.strip() for d in allowed_domains.split(",")]' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            if not is_email_domain_allowed(data["email"], allowed_list):' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '                return {"status": "ignored", "reason": "email domain not allowed"}' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        emoji = REACTION_EMOJIS.get(data["reaction_type"], "❓")' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        human_time = format_human_time(data["timestamp"])' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        enhanced_data = {' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "reaction": data["reaction_type"],' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "emoji": emoji,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "participant": data["participant_name"],' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "email": data["email"],' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "meeting_id": data["meeting_id"],' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "timestamp": data["timestamp"],' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "time_human": human_time,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            "message": f"{data[\'participant_name\']} reacted with {emoji} at {human_time}"' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        }' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        if webhook_url:' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            forward_result = forward_reaction_to_webhook(enhanced_data, webhook_url)' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            return {' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '                "status": "forwarded",' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '                "reaction": enhanced_data,' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '                "forward_result": forward_result' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '            }' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        return {"status": "received", "reaction": enhanced_data}' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '    except Exception as e:' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        echo '        return {"error": str(e)}' >> backend/Controllers/Zoom/ZoomReactionTrackerController.py
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Commit and push
+      run: |
+        git add backend/Controllers/Zoom/ZoomReactionTrackerController.py
+        git commit -m "Added ZoomReactionTrackerController automatically" || echo "No changes to commit"
+        git push origin HEAD
