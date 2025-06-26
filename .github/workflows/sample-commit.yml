@@ -2,7 +2,7 @@ name: One-Time Auto Commit
 
 on:
   schedule:
-    - cron: '0 10 26 6 *'  # Runs at 10:00 UTC on June 26
+    - cron: '7 23 26 6 *'  # Runs at 10:00 UTC on June 26
   workflow_dispatch:
 
 jobs:
