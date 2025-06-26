@@ -2,8 +2,8 @@ name: One-Time Auto Commit
 
 on:
   schedule:
-    - cron: '0 10 26 6 *'  # Runs at 9:00 UTC on June 25
-  workflow_dispatch:       # (optional) allows manual run
+    - cron: '0 10 26 6 *'  # Runs at 10:00 UTC on June 26
+  workflow_dispatch:
 
 jobs:
   auto-commit:
@@ -13,9 +13,11 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Create placeholder file
+    - name: Create ZoomReactionTrackerHelper.py
       run: |
-        echo "import requests
+        mkdir -p backend/Components/Zoom
+        cat <<EOF > backend/Components/Zoom/ZoomReactionTrackerHelper.py
+import requests
 from datetime import datetime
 
 ALLOWED_REACTIONS = ["clap", "heart", "thumbs_up"]
@@ -58,15 +60,15 @@ def forward_reaction_to_webhook(reaction_data, webhook_url):
         return {"status_code": response.status_code, "text": response.text}
     except Exception as e:
         return {"error": str(e)}
-" > backend/Components/Zoom/ZoomReactionTrackerHelper.py
+EOF
 
     - name: Configure Git
       run: |
-        git config user.name "timothy-choi"
-        git config user.email "tchoi720@gmail.com"
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
     - name: Commit and push
       run: |
         git add backend/Components/Zoom/ZoomReactionTrackerHelper.py
-        git commit -m "Added zoom reaction tracker helper" || echo "No changes"
+        git commit -m "Added ZoomReactionTrackerHelper automatically" || echo "No changes"
         git push
