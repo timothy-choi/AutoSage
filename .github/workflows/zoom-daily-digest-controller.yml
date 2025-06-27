@@ -1,0 +1,56 @@
+name: Auto Commit Zoom Daily Digest Controller
+
+on:
+  schedule:
+    - cron: '7 12 28 6 *'  # June 28 at 5:05 AM PDT
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Create ZoomDailyDigestGeneratorController.py with printf
+        run: |
+          mkdir -p backend/Components/Zoom
+          > backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          
+          printf "from fastapi import APIRouter, HTTPException\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "from pydantic import BaseModel, Field\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "from zoom_daily_digest_generator_helper import (\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    fetch_daily_meetings,\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    generate_daily_digest\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf ")\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          
+          printf "router = APIRouter()\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          
+          printf "class ZoomDailyDigestRequest(BaseModel):\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    user_id: str = Field(..., description=\"Zoom user ID (e.g. 'me')\")\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    jwt_token: str = Field(..., description=\"Zoom JWT token\")\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    date: str = Field(..., description=\"Date in ISO format (e.g. 2025-06-23)\")\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          
+          printf "@router.post(\"/zoom/daily-digest\")\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "def zoom_daily_digest(request: ZoomDailyDigestRequest):\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    try:\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "        meetings = fetch_daily_meetings(request.user_id, request.jwt_token, request.date)\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "        digest = generate_daily_digest(meetings, request.date)\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "        return {\"digest\": digest}\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "    except Exception as e:\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          printf "        raise HTTPException(status_code=500, detail=str(e))\n"
+
+      - name: Configure Git
+        run: |
+          git config user.name "timothy-choi"
+          git config user.email "tchoi720@gmail.com"
+
+      - name: Commit and push
+        run: |
+          git add backend/Components/Zoom/ZoomDailyDigestGeneratorController.py
+          git commit -m "Add ZoomDailyDigestGeneratorController.py automatically" || echo "No changes to commit"
+          git push origin HEAD
