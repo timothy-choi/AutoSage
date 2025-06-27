@@ -1,0 +1,83 @@
+name: Auto Commit Zoom Smart Reminder Helper
+
+on:
+  schedule:
+    - cron: '10 12 28 6 *'  # June 28 at 5:10 AM PDT
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Create ZoomSmartReminderSenderHelper.py with printf
+        run: |
+          mkdir -p backend/Components/Zoom
+          > backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+
+          printf "import requests\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "from datetime import datetime, timedelta\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "from zoneinfo import ZoneInfo\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+
+          printf "def fetch_upcoming_meetings(user_id, jwt_token):\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    url = f\"https://api.zoom.us/v2/users/{user_id}/meetings\"\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    headers = {\"Authorization\": f\"Bearer {jwt_token}\"}\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    params = {\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        \"type\": \"upcoming\",\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        \"page_size\": 30\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    }\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    response = requests.get(url, headers=headers, params=params)\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    if response.status_code != 200:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        raise Exception(f\"Failed to fetch meetings: {response.text}\")\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    return response.json().get(\"meetings\", [])\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+
+          printf "def filter_meetings_within_timeframe(meetings, minutes_ahead, timezone=\"UTC\"):\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    now = datetime.now(ZoneInfo(timezone))\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    cutoff = now + timedelta(minutes=minutes_ahead)\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    upcoming = []\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    for m in meetings:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        start_time_str = m.get(\"start_time\")\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        if not start_time_str:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            continue\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        try:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            start_dt = datetime.fromisoformat(start_time_str.replace(\"Z\", \"+00:00\"))\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            if now <= start_dt <= cutoff:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "                upcoming.append(m)\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        except Exception:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            continue\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    return upcoming\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+
+          printf "def send_reminder(meeting, sender=\"console\", webhook_url=None):\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    topic = meeting.get(\"topic\", \"Untitled\")\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    start_time = meeting.get(\"start_time\", \"Unknown\")\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    join_url = meeting.get(\"join_url\", \"\")\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    message = f\"🔔 Reminder: '{topic}' starts at {start_time}. Join: {join_url}\"\n\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    if sender == \"console\":\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        print(message)\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        return {\"status\": \"printed\", \"message\": message}\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    elif sender == \"webhook\" and webhook_url:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        response = requests.post(webhook_url, json={\"text\": message})\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        return {\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            \"status\": \"sent\" if response.status_code == 200 else \"failed\",\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            \"message\": message,\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "            \"code\": response.status_code\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        }\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "    else:\n" >> backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          printf "        return {\"status\": \"skipped\", \"message\": message}\n"
+
+      - name: Configure Git
+        run: |
+          git config user.name "timothy-choi"
+          git config user.email "tchoi720@gmail.com"
+
+      - name: Commit and push
+        run: |
+          git add backend/Components/Zoom/ZoomSmartReminderSenderHelper.py
+          git commit -m "Add ZoomSmartReminderSenderHelper.py automatically" || echo "No changes to commit"
+          git push origin HEAD
