@@ -2,7 +2,7 @@ name: Auto Commit Zoom Daily Digest Helper
 
 on:
   schedule:
-    - cron: '5 12 28 6 *'  
+    - cron: '5 12 28 6 *'  # June 28 at 5:05 AM PDT
   workflow_dispatch:
 
 jobs:
@@ -16,53 +16,47 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Create ZoomDailyDigestGeneratorHelper.py
+      - name: Create ZoomDailyDigestGeneratorHelper.py with printf
         run: |
           mkdir -p backend/Components/Zoom
-          cat << 'EOF' > backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
-import requests
-from datetime import datetime, timedelta
-
-def fetch_daily_meetings(user_id, jwt_token, date_str):
-    date = datetime.fromisoformat(date_str)
-    start_date = date.strftime('%Y-%m-%dT00:00:00Z')
-    end_date = (date + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
-
-    url = f"https://api.zoom.us/v2/users/{user_id}/meetings"
-    headers = {"Authorization": f"Bearer {jwt_token}"}
-    params = {
-        "type": "past",
-        "from": start_date[:10],
-        "to": end_date[:10],
-        "page_size": 100
-    }
-
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch meetings: {response.text}")
-
-    return response.json().get("meetings", [])
-
-def format_meeting_summary(meeting):
-    start_time = meeting.get("start_time", "")
-    duration = meeting.get("duration", 0)
-    topic = meeting.get("topic", "Untitled")
-    join_url = meeting.get("join_url", "")
-
-    start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00")) if start_time else None
-    time_str = start_dt.strftime("%I:%M %p") if start_dt else "Unknown Time"
-
-    return f"- 🕒 *{topic}* at {time_str} for {duration} min\\n  🔗 [Join Link]({join_url})"
-
-def generate_daily_digest(meetings, date_str):
-    if not meetings:
-        return f"No Zoom meetings found on {date_str}."
-
-    digest = f"📅 *Zoom Daily Digest for {date_str}*\\n"
-    for meeting in meetings:
-        digest += format_meeting_summary(meeting) + "\\n"
-    return digest.strip()
-EOF
+          > backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          
+          printf "import requests\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "from datetime import datetime, timedelta\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          
+          printf "def fetch_daily_meetings(user_id, jwt_token, date_str):\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    date = datetime.fromisoformat(date_str)\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    start_date = date.strftime('%%Y-%%m-%%dT00:00:00Z')\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    end_date = (date + timedelta(days=1)).strftime('%%Y-%%m-%%dT00:00:00Z')\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    url = f\"https://api.zoom.us/v2/users/{user_id}/meetings\"\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    headers = {\"Authorization\": f\"Bearer {jwt_token}\"}\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    params = {\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        \"type\": \"past\",\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        \"from\": start_date[:10],\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        \"to\": end_date[:10],\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        \"page_size\": 100\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    }\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    response = requests.get(url, headers=headers, params=params)\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    if response.status_code != 200:\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        raise Exception(f\"Failed to fetch meetings: {response.text}\")\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    return response.json().get(\"meetings\", [])\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          
+          printf "def format_meeting_summary(meeting):\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    start_time = meeting.get(\"start_time\", \"\")\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    duration = meeting.get(\"duration\", 0)\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    topic = meeting.get(\"topic\", \"Untitled\")\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    join_url = meeting.get(\"join_url\", \"\")\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    start_dt = datetime.fromisoformat(start_time.replace(\"Z\", \"+00:00\")) if start_time else None\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    time_str = start_dt.strftime(\"%%I:%%M %%p\") if start_dt else \"Unknown Time\"\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    return f\"- 🕒 *{topic}* at {time_str} for {duration} min\\\\n  🔗 [Join Link]({join_url})\"\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          
+          printf "def generate_daily_digest(meetings, date_str):\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    if not meetings:\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        return f\"No Zoom meetings found on {date_str}.\"\n\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    digest = f\"📅 *Zoom Daily Digest for {date_str}*\\\\n\"\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    for meeting in meetings:\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "        digest += format_meeting_summary(meeting) + \"\\\\n\"\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
+          printf "    return digest.strip()\n" >> backend/Components/Zoom/ZoomDailyDigestGeneratorHelper.py
 
       - name: Configure Git
         run: |
