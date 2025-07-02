@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Dict
 from NotionToGithubSyncerHelper import sync_notion_to_github
 
 router = APIRouter()
